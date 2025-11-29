@@ -131,18 +131,3 @@ body {
     Ubuntu, sans-serif;
   line-height: 1.6;
 }
-
-/* ==================
-         STYLES
-================== */
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background-image: url("/background.jpg");
-  background-size: cover;
-  background-position: center;
-}

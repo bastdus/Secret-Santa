@@ -1,19 +1,16 @@
-import { ReactNode } from "react";
-import "./Card.css";
+import type { ReactNode } from "react";
+import "./styles.css";
 
-type CardProps = {
+interface CardProps {
   title: ReactNode;
   description: ReactNode;
   children: ReactNode;
-};
+}
 
-const Card = ({ title, description, children }: CardProps) => (
-  <div className="card">
+export const Card = ({ title, description, children }: CardProps) => (
+  <article className="card">
     <h1 className="card-title">{title}</h1>
     <p className="card-description">{description}</p>
     <div className="card-content">{children}</div>
-  </div>
+  </article>
 );
-
-export default Card;
-
