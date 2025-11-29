@@ -5,7 +5,7 @@ import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/secretsanta/",
+  base: "/Secret-Santa/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
