@@ -31,7 +31,8 @@ jobs:
         run: npm run build
 
       - name: 🏷️ Add commit info
-        run: echo "<!-- commit: ${{ github.sha }} -->" >> ./dist/index.html
+        run: |
+          echo "<!-- commit: ${{ github.sha }} -->" >> ./dist/index.html
 
       - name: 🚀 Deploy
         uses: peaceiris/actions-gh-pages@v4
