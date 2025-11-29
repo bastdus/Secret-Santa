@@ -62,7 +62,7 @@ const App = () => {
           <CardTitle className="text-4xl text-red-600 font-bold text-center">
             🎅 Secret Santa 🤶
             <br />
-            28/12
+            Samedi 20 décembre 2025
             <br />
             chez Tom & Georgie
           </CardTitle>
