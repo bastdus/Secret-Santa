@@ -7,7 +7,16 @@ import fs from "fs";
  * List of participants.
  * @type {string[]}
  */
-const participants = ["Tom", "Georgina", "Fanny", "Gael", "Natacha", "Bastien"];
+const participants = [
+  "Tom",
+  "Georgina",
+  "Fanny",
+  "Gael",
+  "Natacha",
+  "Bastien",
+  "Adrien",
+  "Clara",
+];
 
 // ==========================
 // PASSWORD LIST

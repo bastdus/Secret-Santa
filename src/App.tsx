@@ -1,24 +1,6 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Gift } from "lucide-react";
 import Snowfall from "react-snowfall";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./components/ui/card";
-import result from "@/data/secretSanta.json";
-import { deobfuscateString } from "./lib/utils";
+import result from "./data/secretSanta.json";
 
 type Friend = {
   name: string;
@@ -26,10 +8,39 @@ type Friend = {
   secretFriend: string;
 };
 
+const deobfuscateString = (encodedStr: string) => {
+  let decoded = "";
+  const parts = encodedStr.split("-");
+  for (const part of parts) {
+    const charCode = parseInt(part) - 5;
+    decoded += String.fromCharCode(charCode);
+  }
+  return decoded;
+};
+
+const GiftIcon = () => (
+  <svg
+    className="gift-icon"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="8" width="18" height="4" rx="1" />
+    <path d="M12 8v13" />
+    <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+    <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" />
+  </svg>
+);
+
 const App = () => {
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [password, setPassword] = useState("");
   const [isCorrect, setIsCorrect] = useState(false);
+
   const friends = result.map((f) => ({
     name: deobfuscateString(f.name),
     password: deobfuscateString(f.password),
@@ -54,66 +65,75 @@ const App = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-[url('/background.jpg')] bg-cover bg-center">
-      <Snowfall />
-      <Card className="w-full max-w-xl mx-auto bg-slate-50 bg-opacity-70">
-        <CardHeader>
-          <CardTitle className="text-4xl text-red-600 font-bold text-center">
-            🎅 Secret Santa 🤶
-            <br />
-            Samedi 20 décembre 2025
-            <br />
-            chez Tom & Georgie
-          </CardTitle>
-          <CardDescription className="text-center">
-            Découvre à qui tu dois offrir un cadeau ! 🎁 <br />
-            (max 20€)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {friends.map((friend) => (
-              <Button key={friend.name} onClick={() => handleOpenModal(friend)}>
-                <Gift className="mr-2 h-4 w-4" />
-                {friend.name}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleCheckPassword();
+    }
+  };
 
-        <Dialog open={!!selectedFriend} onOpenChange={handleCloseModal}>
-          <DialogContent className="lg:w-1/3 max-w-[95%] rounded-lg">
-            <DialogHeader>
-              <DialogTitle>
-                {isCorrect
-                  ? "Tu dois offrir un cadeau à..."
-                  : "Entre le mot de passe"}
-              </DialogTitle>
-            </DialogHeader>
+  return (
+    <div className="app">
+      <Snowfall />
+      <div className="card">
+        <h1 className="card-title">
+          🎅 Secret Santa 🤶
+          <br />
+          Samedi 20 décembre 2025
+          <br />
+          chez Tom & Georgie
+        </h1>
+        <p className="card-description">
+          Découvre à qui tu dois offrir un cadeau ! 🎁 <br />
+          (max 20€)
+        </p>
+        <div className="buttons-grid">
+          {friends.map((friend) => (
+            <button
+              key={friend.name}
+              className="btn"
+              onClick={() => handleOpenModal(friend)}
+            >
+              <GiftIcon />
+              {friend.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {selectedFriend && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="modal-title">
+              {isCorrect
+                ? "Tu dois offrir un cadeau à..."
+                : "Entre le mot de passe"}
+            </h2>
             {!isCorrect ? (
               <>
-                <Input
+                <input
                   type="password"
+                  className="input"
                   placeholder="Mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
                 />
-                <DialogFooter>
-                  <Button onClick={handleCheckPassword}>Vérifier</Button>
-                </DialogFooter>
+                <div className="modal-footer">
+                  <button className="btn" onClick={handleCheckPassword}>
+                    Vérifier
+                  </button>
+                </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center mt-4 gap-2">
-                <p className="text-3xl font-bold text-green-500">
-                  {selectedFriend?.secretFriend} !
-                </p>
-                <span className="text-3xl">🎅 🎁 🤶</span>
+              <div className="result">
+                <p className="result-name">{selectedFriend.secretFriend} !</p>
+                <span className="result-emojis">🎅 🎁 🤶</span>
               </div>
             )}
-          </DialogContent>
-        </Dialog>
-      </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
