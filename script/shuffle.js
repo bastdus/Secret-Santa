@@ -1,54 +1,34 @@
 import fs from "fs";
 
 // ==========================
-// DATA
+// READ PARTICIPANTS
 // ==========================
-/**
- * List of participants.
- * @type {string[]}
- */
-const participants = [
-  "Tom",
-  "Georgina",
-  "Fanny",
-  "Gael",
-  "Natacha",
-  "Bastien",
-  "Adrien",
-  "Clara",
-];
+const participants = fs
+  .readFileSync("./config/participants.txt", "utf-8")
+  .split("\n")
+  .map((name) => name.trim())
+  .filter((name) => name.length > 0);
+
+if (participants.length < 2) {
+  throw new Error("At least 2 participants are required!");
+}
 
 // ==========================
-// PASSWORD LIST
+// READ PASSWORDS
 // ==========================
-/**
- * List of passwords. Needs to have at least as many or more passwords as participants.
- * @type {string[]}
- */
-const passwordList = [
-  "noel",
-  "cadeaux",
-  "sapin",
-  "guirlande",
-  "hiver",
-  "neige",
-  "traineau",
-  "snow",
-  "christmas",
-  "gift",
-  "winter",
-  "snowman",
-  "santa",
-];
+const passwordList = fs
+  .readFileSync("./config/passwords.txt", "utf-8")
+  .split("\n")
+  .map((pwd) => pwd.trim())
+  .filter((pwd) => pwd.length > 0);
+
+if (passwordList.length < participants.length) {
+  throw new Error("Not enough passwords! Add more to config/passwords.txt");
+}
 
 // ==========================
-// SHUFFLE FUNCTION
+// UTILITY FUNCTIONS
 // ==========================
-/**
- * Shuffles an array in place.
- * @param {any[]} array - The array to shuffle.
- * @returns {any[]} The shuffled array.
- */
 const shuffleArray = (array) => {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -58,109 +38,45 @@ const shuffleArray = (array) => {
   return shuffled;
 };
 
-/**
- * Shifts the elements of an array by moving the last element to the first position.
- * @param {any[]} array - The array to shift.
- * @returns {any[]} The shifted array.
- */
 const shiftArray = (array) => {
-  const copyArray = [...array];
-  const lastElement = copyArray.pop();
-  copyArray.unshift(lastElement);
-  return copyArray;
+  const copy = [...array];
+  const last = copy.pop();
+  copy.unshift(last);
+  return copy;
 };
 
-/**
- * Creates pairs of givers and receivers from a list of participants.
- * @param {string[]} participantsList - The list of participants.
- * @returns {{giver: string, receiver: string}[]} The list of pairs with givers and receivers.
- */
-const createPairs = (participantsList) => {
-  // create a copy shuffled from the participants array
-  const shuffledArray = shuffleArray(participantsList);
-  // create a copy of the shuffled array and put the last element at the beginning
-  const shiftedArray = shiftArray(shuffledArray);
+const obfuscate = (str) =>
+  str
+    .split("")
+    .map((c) => c.charCodeAt(0) + 5)
+    .join("-");
 
-  // Create pairs of giver and receiver by mapping the shuffled array with the shifted array participantsList
-  const pairs = shuffledArray.map((person, index) => ({
-    giver: person,
-    receiver: shiftedArray[index],
-  }));
-
-  return pairs;
-};
+const deobfuscate = (str) =>
+  str
+    .split("-")
+    .map((n) => String.fromCharCode(parseInt(n) - 5))
+    .join("");
 
 // ==========================
-// OBFUSCATE FUNCTION
+// CREATE PAIRS
 // ==========================
-/**
- * Obfuscates a string by encoding it with a simple Caesar cipher
- * @param {string} str
- * @returns {string}
- * eg: obfuscateString("hello") => "107-104-109-109-114"
- */
-const obfuscateString = (str) => {
-  let encoded = "";
-  for (let i = 0; i < str.length; i++) {
-    let charCode = str.charCodeAt(i);
-    encoded += charCode + 5 + "-";
-  }
-  return encoded.slice(0, -1); // Supprime le dernier tiret
-};
+const shuffled = shuffleArray(participants);
+const shifted = shiftArray(shuffled);
+const passwords = shuffleArray(passwordList);
 
-/**
- * Deobfuscates a string by decoding it with a simple Caesar cipher
- * @param {string} encodedStr
- * @returns {string}
- * eg: deobfuscateString("107-104-109-109-114") => "hello"
- */
-const deobfuscateString = (encodedStr) => {
-  let decoded = "";
-  const parts = encodedStr.split("-");
-  for (const part of parts) {
-    const charCode = parseInt(part) - 5;
-    decoded += String.fromCharCode(charCode);
-  }
-  return decoded;
-};
+const result = shuffled.map((giver, i) => ({
+  name: obfuscate(giver),
+  password: obfuscate(passwords[i] + new Date().getFullYear()),
+  secretFriend: obfuscate(shifted[i]),
+}));
 
 // ==========================
-// INIT FUNCTION
+// WRITE OUTPUT FILE
 // ==========================
-const init = () => {
-  if (!passwordList.length >= participants.length) {
-    throw new Error(
-      `Not enough passwords in the list to assign to each person.`
-    );
-  }
+fs.writeFileSync("./src/data.json", JSON.stringify(result, null, 2));
 
-  const pairs = createPairs(participants);
-  const shuffledPasswords = shuffleArray(passwordList);
-
-  const result = pairs.map(({ giver, receiver }, index) => {
-    const password = shuffledPasswords[index] + new Date().getFullYear();
-
-    return {
-      name: obfuscateString(giver),
-      password: obfuscateString(password),
-      secretFriend: obfuscateString(receiver),
-    };
-  });
-
-  fs.writeFileSync(
-    "./src/data/secretSanta.json",
-    JSON.stringify(result, null, 2)
-  );
-
-  console.log(
-    "Secret Santa pairs have been shuffled and written to ./src/data/secretSanta.json"
-  );
-
-  result.map(({ name, password }) => {
-    console.log(
-      `🫥 ${deobfuscateString(name)} \n🔐 ${deobfuscateString(password)} \n`
-    );
-  });
-};
-
-init();
+console.log("\n🎄 Secret Santa generated!\n");
+result.forEach(({ name, password }) => {
+  console.log(`👤 ${deobfuscate(name)} → 🔐 ${deobfuscate(password)}`);
+});
+console.log("");

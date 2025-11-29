@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Snowfall from "react-snowfall";
-import result from "./data/secretSanta.json";
+import result from "./data.json";
 import Card from "./components/Card/Card";
 import Modal from "./components/Modal/Modal";
 import Button from "./components/Button/Button";
