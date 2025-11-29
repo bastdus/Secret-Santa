@@ -40,10 +40,6 @@
 
 Check out a live demo: **[github.com/bastdus/Secret-Santa](https://github.com/bastdus/Secret-Santa)**
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/fe0f574a-b844-473b-a234-4ad02b3df55a" width="600" alt="Secret Santa Screenshot" />
-</p>
-
 ## 🚀 Quick Start
 
 ### Installation
@@ -184,11 +180,6 @@ This project is designed for seamless GitHub Pages deployment with GitHub Action
 3. Select **🔀 Shuffle** workflow
 4. Click **Run workflow**
 5. Check the logs to see the generated passwords
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/5b124886-ba1e-434f-9d58-c9b6441200e8" width="400" alt="GitHub Actions" />
-  <img src="https://github.com/user-attachments/assets/adae1b67-1f79-4a3a-8383-52d98c348f8e" width="400" alt="Workflow Output" />
-</p>
 
 **Option B: Local Build + Deploy**
 
